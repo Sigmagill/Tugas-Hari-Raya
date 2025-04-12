@@ -1,0 +1,146 @@
+﻿using System;
+
+namespace SistemManajemenKaryawan
+{
+    // Kelas Parent: Karyawan
+    public class Karyawan
+    {
+        // Atribut private dengan inisialisasi default
+        private string nama = string.Empty;
+        private string id = string.Empty;
+        private double gajiPokok;
+
+        // Property dengan validasi null
+        public string Nama
+        {
+            get => nama;
+            set => nama = value ?? throw new ArgumentNullException(nameof(value), "Nama tidak boleh null");
+        }
+
+        public string ID
+        {
+            get => id;
+            set => id = value ?? throw new ArgumentNullException(nameof(value), "ID tidak boleh null");
+        }
+
+        public double GajiPokok
+        {
+            get => gajiPokok;
+            set => gajiPokok = value >= 0 ? value : throw new ArgumentException("Gaji pokok tidak boleh negatif");
+        }
+
+        // Constructor
+        public Karyawan(string nama, string id, double gajiPokok)
+        {
+            Nama = nama;
+            ID = id;
+            GajiPokok = gajiPokok;
+        }
+
+        // Method virtual yang akan di-override
+        public virtual double HitungGaji() => GajiPokok;
+
+        // Method untuk menampilkan informasi
+        public virtual void TampilkanInfo()
+        {
+            Console.WriteLine($"Nama: {Nama}");
+            Console.WriteLine($"ID: {ID}");
+            Console.WriteLine($"Gaji Pokok: {GajiPokok:C}");
+        }
+    }
+
+    // Kelas Turunan: Karyawan Tetap
+    public class KaryawanTetap : Karyawan
+    {
+        private const double BonusTetap = 500000;
+
+        public KaryawanTetap(string nama, string id, double gajiPokok)
+            : base(nama, id, gajiPokok) { }
+
+        public override double HitungGaji() => GajiPokok + BonusTetap;
+
+        public override void TampilkanInfo()
+        {
+            base.TampilkanInfo();
+            Console.WriteLine($"Bonus Tetap: {BonusTetap:C}");
+            Console.WriteLine($"Gaji Akhir: {HitungGaji():C}");
+            Console.WriteLine("Status: Karyawan Tetap");
+        }
+    }
+
+    // Kelas Turunan: Karyawan Kontrak
+    public class KaryawanKontrak : Karyawan
+    {
+        private const double PotonganKontrak = 200000;
+
+        public KaryawanKontrak(string nama, string id, double gajiPokok)
+            : base(nama, id, gajiPokok) { }
+
+        public override double HitungGaji() => GajiPokok - PotonganKontrak;
+
+        public override void TampilkanInfo()
+        {
+            base.TampilkanInfo();
+            Console.WriteLine($"Potongan Kontrak: {PotonganKontrak:C}");
+            Console.WriteLine($"Gaji Akhir: {HitungGaji():C}");
+            Console.WriteLine("Status: Karyawan Kontrak");
+        }
+    }
+
+    // Kelas Turunan: Karyawan Magang
+    public class KaryawanMagang : Karyawan
+    {
+        public KaryawanMagang(string nama, string id, double gajiPokok)
+            : base(nama, id, gajiPokok) { }
+
+        public override void TampilkanInfo()
+        {
+            base.TampilkanInfo();
+            Console.WriteLine($"Gaji Akhir: {HitungGaji():C}");
+            Console.WriteLine("Status: Karyawan Magang");
+        }
+    }
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            try
+            {
+                Console.WriteLine("=== Sistem Manajemen Karyawan ===");
+                Console.WriteLine("Pilih jenis karyawan:");
+                Console.WriteLine("1. Karyawan Tetap");
+                Console.WriteLine("2. Karyawan Kontrak");
+                Console.WriteLine("3. Karyawan Magang");
+                Console.Write("Masukkan pilihan (1-3): ");
+
+                int pilihan = Convert.ToInt32(Console.ReadLine());
+
+                Console.Write("Masukkan Nama: ");
+                string nama = Console.ReadLine() ?? "";
+
+                Console.Write("Masukkan ID: ");
+                string id = Console.ReadLine() ?? "";
+
+                Console.Write("Masukkan Gaji Pokok: ");
+                double gajiPokok = Convert.ToDouble(Console.ReadLine());
+
+                Karyawan karyawan = pilihan switch
+                {
+                    1 => new KaryawanTetap(nama, id, gajiPokok),
+                    2 => new KaryawanKontrak(nama, id, gajiPokok),
+                    3 => new KaryawanMagang(nama, id, gajiPokok),
+                    _ => throw new ArgumentException("Pilihan tidak valid!")
+                };
+
+                Console.WriteLine("\n=== Detail Karyawan ===");
+                karyawan.TampilkanInfo();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"\nError: {ex.Message}");
+                Console.WriteLine("Program dihentikan karena terjadi kesalahan.");
+            }
+        }
+    }
+}
